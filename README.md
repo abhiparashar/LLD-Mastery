@@ -9,11 +9,42 @@
 
 | Day | Focus | Problems | Status |
 |-----|-------|----------|--------|
-| Mon (Today) | Framework + OOP Thinking | Parking Lot | 🔄 In Progress |
+| Mon | Framework + OOP Thinking | Parking Lot | ✅ Done |
 | Tue | Relationships + SOLID | Library Management System | ⏳ |
 | Wed | Design Patterns | Elevator / ATM | ⏳ |
 | Thu | Insurance Domain | Policy Management / Claims System | ⏳ |
 | Fri Morning | Mock Round | Full Timed Simulation | ⏳ |
+
+---
+
+## Full Problem List
+
+### Tier 1 — Must Know
+| # | Problem | Status |
+|---|---------|--------|
+| 1 | Parking Lot | ✅ Done |
+| 2 | Library Management System | ⏳ |
+| 3 | Elevator System | ⏳ |
+| 4 | ATM Machine | ⏳ |
+| 5 | Hotel Booking System | ⏳ |
+
+### Tier 2 — Product Companies
+| # | Problem | Status |
+|---|---------|--------|
+| 6 | Ride Sharing (Uber/Ola) | ⏳ |
+| 7 | Movie Ticket Booking (BookMyShow) | ⏳ |
+| 8 | Food Delivery (Swiggy/Zomato) | ⏳ |
+| 9 | E-commerce / Shopping Cart | ⏳ |
+| 10 | Chess / Snake & Ladder | ⏳ |
+
+### Tier 3 — Kiwi Relevant (Insurance Tech)
+| # | Problem | Status |
+|---|---------|--------|
+| 11 | Insurance Policy Management | ⏳ |
+| 12 | Claims Processing System | ⏳ |
+| 13 | Payment / Billing System | ⏳ |
+| 14 | Notification System | ⏳ |
+| 15 | Wallet System | ⏳ |
 
 ---
 
