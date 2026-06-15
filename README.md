@@ -9,11 +9,11 @@
 
 | Day | Focus | Problems | Status |
 |-----|-------|----------|--------|
-| Mon | Framework + OOP Thinking | Parking Lot | ✅ Done |
-| Tue | Relationships + SOLID | Library Management System | ⏳ |
-| Wed | Design Patterns | Elevator / ATM | ⏳ |
-| Thu | Insurance Domain | Policy Management / Claims System | ⏳ |
-| Fri Morning | Mock Round | Full Timed Simulation | ⏳ |
+| Mon | OOP Thinking + Facade | Parking Lot | ✅ Done |
+| Tue | Availability Logic + Booking | Hotel Booking System | 🔄 In Progress |
+| Wed | State Pattern + Remaining Tier 1 | Elevator, ATM, Library Management | ⏳ |
+| Thu | Insurance Domain | Policy Management, Claims, Payment | ⏳ |
+| Fri Morning | Mock Round | Full Timed Simulation (Kiwi style) | ⏳ |
 
 ---
 
