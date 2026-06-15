@@ -1,0 +1,5 @@
+# LLD Mastery - Interview Prep
+*.class
+*.iml
+.idea/
+target/
