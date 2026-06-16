@@ -5,15 +5,15 @@
 
 ---
 
-## 5-Day Battle Plan
+## Battle Plan (Updated)
 
 | Day | Focus | Problems | Status |
 |-----|-------|----------|--------|
 | Mon | OOP Thinking + Facade | Parking Lot | ✅ Done |
-| Tue | Availability Logic + Booking | Hotel Booking System | 🔄 In Progress |
-| Wed | State Pattern + Remaining Tier 1 | Elevator, ATM, Library Management | ⏳ |
-| Thu | Insurance Domain | Policy Management, Claims, Payment | ⏳ |
-| Fri Morning | Mock Round | Full Timed Simulation (Kiwi style) | ⏳ |
+| Tue (split) | Availability Logic + Booking, then Tier 2 | Hotel Booking System; Ride Sharing, Movie Ticket Booking, Food Delivery, E-commerce, Chess | ✅ Hotel Booking Done — Tier 2 in progress |
+| Wed | Remaining Tier 1 | Elevator System, ATM Machine, Library Management | ⏳ |
+| Thu | Insurance Domain (Kiwi specific) | Policy Management, Claims Processing | ⏳ |
+| Fri (before 1:30 PM) | Insurance Domain + Mock Round | Payment/Billing, Notification, Wallet, full timed mock | ⏳ |
 
 ---
 
@@ -26,7 +26,7 @@
 | 2 | Library Management System | ⏳ |
 | 3 | Elevator System | ⏳ |
 | 4 | ATM Machine | ⏳ |
-| 5 | Hotel Booking System | ⏳ |
+| 5 | Hotel Booking System | ✅ Done |
 
 ### Tier 2 — Product Companies
 | # | Problem | Status |
@@ -82,6 +82,30 @@
    - Single Responsibility Principle — each class owns one concern
    - "Inherit for behavior, enum for identity"
    - Resources are released by explicit actions, not timeouts
+
+---
+
+## Problem 2 — Hotel Booking System
+
+### What We Are Learning Here
+1. **Date-range thinking** — availability is not a boolean flag, it depends on overlapping date ranges
+2. **The interval overlap formula**
+   ```
+   existing.checkIn.isBefore(requested.checkOut)
+       && existing.checkOut.isAfter(requested.checkIn)
+   ```
+   Handles every overlap shape (partial, full containment) with one expression
+3. **Flat list + filter, not nested maps** — `Map<Room, Booking>` breaks when one room has many bookings over time; a flat `List<Booking>` filtered by room scales correctly
+4. **Lifecycle states vs concurrency concerns** — `PENDING` exists for payment-pending business state, not for race conditions; race conditions need DB-level locks, not application status checks (out of scope for a 1hr interview, but good to mention)
+5. **Scope discipline** — model the full lifecycle in the enum, implement only the happy path unless asked to go deeper
+6. **Classes Built**
+   - `RoomType` (enum) — SINGLE, DOUBLE, SUITE
+   - `BookingStatus` (enum) — PENDING, CONFIRMED, CANCELLED, CHECKED_OUT
+   - `Room` (model) — roomId, roomType, pricePerNight (static price map)
+   - `Guest` (model) — guestId, name, email
+   - `Booking` (model) — bookingId, guest, room, checkInDate, checkOutDate, amount, status
+   - `HotelService` (service) — findAvailableRoom, createBooking, cancelBooking, checkOutBooking
+   - `Hotel` (facade) — thin wrapper delegating to HotelService
 
 ---
 
