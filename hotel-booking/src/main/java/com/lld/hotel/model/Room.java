@@ -13,8 +13,7 @@ public class Room {
   private static final Map<RoomType, Integer> PRICE_MAP = Map.of(
       RoomType.SINGLE, 3000,
       RoomType.DOUBLE, 5000,
-      RoomType.SUITE, 8000
-  );
+      RoomType.SUITE, 8000);
 
   public Room(RoomType roomType) {
     this.roomId = UUID.randomUUID().toString();
