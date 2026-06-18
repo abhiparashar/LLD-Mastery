@@ -10,7 +10,7 @@
 | Day | Focus | Problems | Status |
 |-----|-------|----------|--------|
 | Mon | OOP Thinking + Facade | Parking Lot | ✅ Done |
-| Tue (split) | Availability Logic + Booking, then Tier 2 | Hotel Booking System; Ride Sharing, Movie Ticket Booking, Food Delivery, E-commerce, Chess | ✅ Hotel Booking Done — Tier 2 in progress |
+| Tue (split) | Availability Logic + Booking, then Tier 2 | Hotel Booking System; Ride Sharing, Movie Ticket Booking, Food Delivery, E-commerce, Chess | ✅ Hotel Booking & Ride Sharing Done — Tier 2 in progress |
 | Wed | Remaining Tier 1 | Elevator System, ATM Machine, Library Management | ⏳ |
 | Thu | Insurance Domain (Kiwi specific) | Policy Management, Claims Processing | ⏳ |
 | Fri (before 1:30 PM) | Insurance Domain + Mock Round | Payment/Billing, Notification, Wallet, full timed mock | ⏳ |
@@ -31,7 +31,7 @@
 ### Tier 2 — Product Companies
 | # | Problem | Status |
 |---|---------|--------|
-| 6 | Ride Sharing (Uber/Ola) | ⏳ |
+| 6 | Ride Sharing (Uber/Ola) | ✅ Done |
 | 7 | Movie Ticket Booking (BookMyShow) | ⏳ |
 | 8 | Food Delivery (Swiggy/Zomato) | ⏳ |
 | 9 | E-commerce / Shopping Cart | ⏳ |
@@ -106,6 +106,27 @@
    - `Booking` (model) — bookingId, guest, room, checkInDate, checkOutDate, amount, status
    - `HotelService` (service) — findAvailableRoom, createBooking, cancelBooking, checkOutBooking
    - `Hotel` (facade) — thin wrapper delegating to HotelService
+
+---
+
+## Problem 3 — Ride Sharing System
+
+### What We Are Learning Here
+1. **Concurrency as a first-class concern** — starting here, every design must account for race conditions, not just the happy path
+2. **The "find then assign" race** — `requestRide` looks for the nearest AVAILABLE driver, then marks them BUSY as a separate step. If two riders request at the same instant, both can see the same driver as available before either one claims them, and both get assigned the same driver. Fixed by doing the check-and-claim as one atomic step: enter a `synchronized` block on that specific driver, re-check they're still AVAILABLE, then flip to BUSY — all before releasing the lock
+3. **Why `CopyOnWriteArrayList` / `ConcurrentHashMap`** — drivers are registered rarely but read on every single ride request, so reads need to be cheap and never throw `ConcurrentModificationException` while a write is happening; rides are looked up by ID from many threads at once, so the ride map needs safe concurrent access without a single global lock
+4. **Lifecycle guards on the ride itself** — `startRide`, `completeRide`, and `cancelRide` each check the ride's current status before changing it, inside a `synchronized(ride)` block, so the same ride can't be completed twice or cancelled after it already finished
+5. **Classes Built**
+   - `VehicleType` (enum) — CAR, BIKE
+   - `DriverStatus` (enum) — AVAILABLE, BUSY, OFFLINE
+   - `RideStatus` (enum) — REQUESTED, ACCEPTED, ONGOING, COMPLETED, CANCELLED
+   - `Location` (model) — latitude, longitude, distanceTo
+   - `Driver` (model) — driverId, currentLocation, rating, status, vehicleType
+   - `Rider` (model) — riderId, name, rating
+   - `Ride` (model) — rideId, rider, driver, pickup/drop location, status, fare, requestedAt, completedAt
+   - `RideMatchingService` (service) — registerDriver, requestRide, startRide, completeRide, cancelRide, getRide
+   - `RideSharingController` — thin wrapper delegating to RideMatchingService
+6. **Proved the fix, didn't just claim it** — `Main` fires 20 concurrent ride requests at a single driver; exactly 1 succeeds every time, confirming the synchronized claim actually holds up under real thread contention
 
 ---
 
