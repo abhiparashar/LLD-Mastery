@@ -5,13 +5,11 @@ import java.util.UUID;
 public class Rider {
   private final String riderId;
   private final String name;
-  private Location currentLocation;
   private final int rating;
 
-  public Rider(String name, Location currentLocation, int rating) {
+  public Rider(String name, int rating) {
     this.riderId = UUID.randomUUID().toString();
     this.name = name;
-    this.currentLocation = currentLocation;
     this.rating = rating;
   }
 
@@ -21,14 +19,6 @@ public class Rider {
 
   public String getName() {
     return name;
-  }
-
-  public Location getCurrentLocation() {
-    return currentLocation;
-  }
-
-  public void setCurrentLocation(Location currentLocation) {
-    this.currentLocation = currentLocation;
   }
 
   public int getRating() {
