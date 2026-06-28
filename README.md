@@ -32,7 +32,7 @@
 | # | Problem | Status |
 |---|---------|--------|
 | 6 | Ride Sharing (Uber/Ola) | ✅ Done |
-| 7 | Movie Ticket Booking (BookMyShow) | ⏳ |
+| 7 | Movie Ticket Booking (BookMyShow) | ✅ Done |
 | 8 | Food Delivery (Swiggy/Zomato) | ⏳ |
 | 9 | E-commerce / Shopping Cart | ⏳ |
 | 10 | Chess / Snake & Ladder | ⏳ |
@@ -127,6 +127,31 @@
    - `RideMatchingService` (service) — registerDriver, requestRide, startRide, completeRide, cancelRide, getRide
    - `RideSharingController` — thin wrapper delegating to RideMatchingService
 6. **Proved the fix, didn't just claim it** — `Main` fires 20 concurrent ride requests at a single driver; exactly 1 succeeds every time, confirming the synchronized claim actually holds up under real thread contention
+
+---
+
+---
+
+## Problem 4 — Movie Ticket Booking System (BookMyShow)
+
+### What We Are Learning Here
+1. **Availability is not a flag on the seat** — a `Seat` belongs to a `Hall`, which is reused across many shows. Marking a seat as unavailable on the seat object would block it for all shows forever. Availability must be computed per show: scan the ticket list, filter by show + seat, and check if any active (non-cancelled) ticket exists
+2. **Flat list + filter, not nested maps** — same lesson as Hotel Booking: a flat `List<Ticket>` filtered at query time scales correctly; a `Map<Show, Map<Seat, Ticket>>` breaks the moment a ticket is cancelled and the seat needs to be freed
+3. **The concurrency gap (by design for this level)** — `isSeatAvailable` and the `tickets.add` in `bookTicket` are two separate steps. Two users booking the same seat concurrently can both pass the check before either adds their ticket, resulting in a double-booking. The fix is a `synchronized(show)` block wrapping both steps — not implemented here, but the right thing to mention in an interview
+4. **Lifecycle guard on cancel** — `cancelTicket` checks that the ticket is currently `BOOKED` before flipping it to `CANCELLED`, so you can't cancel an already-cancelled ticket. Same pattern as Ride Sharing's lifecycle guards on `startRide` / `completeRide`
+5. **Theatre → Hall → Seat hierarchy** — a `Theatre` has many `Hall`s; each `Hall` has a fixed list of `Seat`s; a `Show` is scheduled on a specific `Hall` at a point in time. This is the three-level hierarchy BookMyShow actually uses
+6. **Classes Built**
+   - `SeatType` (enum) — REGULAR, PREMIUM, RECLINER
+   - `TicketStatus` (enum) — BOOKED, CANCELLED
+   - `User` (model) — userId, name
+   - `Movie` (model) — movieId, name, genre, language, durationMinutes
+   - `Seat` (model) — seatId, row, seatNumber, seatType
+   - `Hall` (model) — hallId, list of seats
+   - `Theatre` (model) — theatreName, list of halls
+   - `Show` (model) — showId, movie, hall, startTime
+   - `Ticket` (model) — ticketId, user, show, seat, status, bookedAt
+   - `MovieBookingService` (service) — addMovie, addHall, scheduleShow, getAvailableSeats, bookTicket, cancelTicket
+   - `MovieBookingController` — thin wrapper delegating to MovieBookingService
 
 ---
 
