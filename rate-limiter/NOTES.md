@@ -48,4 +48,23 @@ Example: 60s window, limit 10, request at 12:01:45 (75% into current minute, 25%
 
 ---
 
-## Design (in progress)
+## Algorithm 1 — Fixed Window Counter
+
+### Classes Built
+- `Window` (model) — clientId, limit, currentCount, windowStart. `increment()` to bump count, `final` on immutable fields
+- `RateLimiterService` (service) — `Map<String, Window>` per client, `WINDOW_DURATION_SECONDS = 60` as internal constant, `isRequestAllowed(clientId)` returns boolean
+- `RateLimiterController` — thin wrapper delegating to service
+
+### Key Decisions
+- `allowRequest` returns `boolean`, not exception — rate limit exceeded is an expected outcome, not an error
+- `clientId` is a generic string — caller decides if it's userId, IP, serviceId
+- Service creates windows on demand, no window injected from outside
+- Window expiry creates a fresh `Window`, doesn't mutate the old one
+- `increment()` not `setCurrentCount()` — object controls its own state (Tell, Don't Ask)
+
+### The Bug (intentional)
+Boundary spike: 3 requests at 12:00:59 + 3 at 12:01:01 = 6 in 2 seconds, both windows say fine. This is why we move to Sliding Window Log next.
+
+---
+
+## Algorithm 2 — Sliding Window Log (in progress)
