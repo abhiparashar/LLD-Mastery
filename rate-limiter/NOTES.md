@@ -67,4 +67,24 @@ Boundary spike: 3 requests at 12:00:59 + 3 at 12:01:01 = 6 in 2 seconds, both wi
 
 ---
 
-## Algorithm 2 — Sliding Window Log (in progress)
+## Algorithm 2 — Sliding Window Log
+
+### Classes Built
+- `SlidingWindowLog` (model) — clientId, `Deque<LocalDateTime>` timestamps. `ArrayDeque` chosen over `ArrayList` because we add to back and evict from front — O(1) both ends
+- `SlidingWindowLogService` (service) — `Map<String, SlidingWindowLog>` per client, evicts expired timestamps before every size check using `removeIf`
+- `SlidingWindowLogController` — thin wrapper delegating to service
+
+### Key Decisions
+- Evict **before** size check — without eviction, expired timestamps count against the limit
+- `removeIf(t -> t.isBefore(now - 60s))` — the line that makes it a sliding window
+- `limit` in service constructor, not hardcoded — caller decides the policy
+- Model exposes real deque, not a copy — service needs to mutate it for eviction
+
+### The Bug (intentional)
+Memory: 1M users × 10K requests = 10B timestamps in RAM. This is why Sliding Window Counter exists.
+
+---
+
+## Algorithm 3 — Sliding Window Counter (in progress)
+- Stores two numbers per client: previous window count + current window count
+- Next: need windowStart to calculate overlap percentage
