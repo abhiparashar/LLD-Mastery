@@ -85,6 +85,26 @@ Memory: 1M users × 10K requests = 10B timestamps in RAM. This is why Sliding Wi
 
 ---
 
-## Algorithm 3 — Sliding Window Counter (in progress)
-- Stores two numbers per client: previous window count + current window count
-- Next: need windowStart to calculate overlap percentage
+## Algorithm 3 — Sliding Window Counter
+
+### Classes Built
+- `SlidingWindowCounter` (model) — `previousCount`, `currentCount`, `windowStart`. `incrementCurrent()` to bump count, `rollWindow()` to shift previous←current, reset current to 0, reset windowStart to now
+- `SlidingWindowCounterService` (service) — calculates `effectiveCount` using overlap formula, rolls window on expiry
+- `SlidingWindowCounterController` — thin wrapper delegating to service
+
+### The Formula
+```
+elapsed    = now - windowStart (seconds)
+overlap    = 1.0 - (elapsed / 60)
+effectiveCount = previousCount × overlap + currentCount
+```
+
+### Key Decisions
+- `rollWindow()` called when `elapsed >= 60`, before calculating overlap — not when blocked
+- `WINDOW_DURATION_SECONDS` as constant in service — not in model
+- After rollWindow, `timeElapsed` resets to ~0 so overlap becomes ~1.0 (full previous window weight)
+
+### Why This Wins
+- Fixed Window: O(1) memory, boundary bug
+- Sliding Log: perfect accuracy, O(n) memory per user
+- Sliding Counter: O(1) memory, good enough accuracy — best of both
